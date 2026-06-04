@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#E8694A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rize">
+<meta name="description" content="Your comeback fitness app. No shame, no pressure.">
+<title>Rize — Your Comeback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- PWA Manifest inline as data URI -->
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Rize%20%E2%80%94%20Your%20Comeback%22,%22short_name%22:%22Rize%22,%22description%22:%22Your%20comeback%20fitness%20app%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23FAF7F2%22,%22theme_color%22:%22%23E8694A%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27115%27%20fill%3D%27%23E8694A%27%2F%3E%3Ctext%20x%3D%27256%27%20y%3D%27340%27%20text-anchor%3D%27middle%27%20font-size%3D%27280%27%20font-family%3D%27Georgia%2Cserif%27%20fill%3D%27white%27%3ER%3C%2Ftext%3E%3C%2Fsvg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]}">
+
+<!-- Apple touch icon via SVG data URI -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='115' fill='%23E8694A'/><text x='256' y='340' text-anchor='middle' font-size='280' font-family='Georgia,serif' fill='white'>R</text></svg>">
+
+<style>
+:root {
+  --primary: #E8694A;
+  --primary-dark: #C04E32;
+  --accent: #F2C94C;
+  --bg: #FAF7F2;
+  --surface: #FFFFFF;
+  --text: #1A1008;
+  --dim: #8A7A6E;
+  --border: #EAE4D9;
+  --success: #4CAF7D;
+  --easy: #A8D5B5;
+  --mid: #F2C94C;
+  --hard: #E8694A;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%; background: #000;
+  font-family: 'DM Sans', sans-serif;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 40px rgba(0,0,0,0.3);
+}
+
+/* SCREEN SYSTEM */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  will-change: transform, opacity;
+}
+.screen.hidden { opacity: 0; pointer-events: none; transform: translateX(30px); }
+.screen.active { opacity: 1; pointer-events: all; transform: translateX(0); }
+
+/* SCROLLABLE CONTENT */
+.scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.scroll-body::-webkit-scrollbar { display: none; }
+
+/* TYPOGRAPHY */
+.display { font-family: 'Playfair Display', Georgia, serif; }
+.mono { font-family: 'Courier New', monospace; }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(26,16,8,0.05);
+}
+
+/* BUTTONS */
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  padding: 14px 20px; border-radius: 12px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: all 0.18s; width: 100%;
+  -webkit-appearance: none; appearance: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-secondary { background: var(--border); color: var(--text); }
+.btn-ghost { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+.btn-accent { background: var(--accent); color: var(--text); }
+.btn-dark { background: var(--text); color: #fff; }
+.btn-danger { background: transparent; color: var(--hard); border: 1.5px solid var(--hard); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* BOTTOM NAV */
+#bottom-nav {
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding-bottom: var(--safe-bottom);
+  flex-shrink: 0;
+  z-index: 100;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 10px 4px 6px; border: none; background: transparent; cursor: pointer;
+  gap: 3px; -webkit-appearance: none;
+}
+.nav-icon { font-size: 22px; line-height: 1; }
+.nav-label {
+  font-size: 10px; font-weight: 500; color: var(--dim);
+  font-family: 'DM Sans', sans-serif; letter-spacing: 0.3px;
+}
+.nav-item.active .nav-label { color: var(--primary); font-weight: 700; }
+.nav-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--primary); display: none;
+}
+.nav-item.active .nav-dot { display: block; }
+
+/* PROGRESS BAR */
+.progress-track { background: var(--border); border-radius: 99px; height: 5px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.4s ease; }
+
+/* TAG */
+.tag {
+  display: inline-block; padding: 3px 10px; border-radius: 7px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+}
+
+/* TOGGLE */
+.toggle-wrap {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.toggle {
+  width: 44px; height: 26px; border-radius: 13px; border: none;
+  background: var(--border); position: relative; cursor: pointer;
+  transition: background 0.2s; flex-shrink: 0;
+}
+.toggle.on { background: var(--primary); }
+.toggle-knob {
+  width: 20px; height: 20px; border-radius: 50%; background: #fff;
+  position: absolute; top: 3px; left: 3px; transition: left 0.2s;
+}
+.toggle.on .toggle-knob { left: 21px; }
+
+/* FEELING CHECK */
+.feeling-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 5px; padding: 12px 6px; border-radius: 12px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; transition: all 0.18s; -webkit-appearance: none;
+}
+.feeling-btn:active { transform: scale(0.95); }
+.feeling-btn.selected { border-color: var(--primary); background: rgba(232,105,74,0.08); }
+.feeling-emoji { font-size: 26px; }
+.feeling-label { font-size: 12px; color: var(--dim); font-family: 'DM Sans', sans-serif; }
+
+/* WORKOUT SCREEN */
+#workout-screen {
+  background: #1A1008;
+  color: #fff;
+}
+.exercise-stage {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border-radius: 20px;
+  margin: 0 20px;
+  min-height: 200px;
+}
+.timer-display {
+  font-family: 'Courier New', monospace;
+  font-size: 72px; font-weight: 700;
+  line-height: 1; color: #fff;
+  transition: color 0.3s;
+}
+.timer-display.urgent { color: var(--accent); }
+
+/* CHAT */
+.chat-bubble {
+  max-width: 82%; padding: 12px 16px;
+  font-size: 15px; line-height: 1.6; font-family: 'DM Sans', sans-serif;
+}
+.bubble-sage {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px 16px 16px 4px; color: var(--text);
+  box-shadow: 0 2px 8px rgba(26,16,8,0.05);
+}
+.bubble-user {
+  background: var(--primary); color: #fff;
+  border-radius: 16px 16px 4px 16px;
+  margin-left: auto;
+}
+.typing-dots span {
+  display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--dim);
+  animation: bounce 1.2s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+/* CELEBRATION */
+.confetti-piece {
+  position: absolute; width: 10px; height: 10px;
+  animation: fall 2.5s ease-in forwards;
+  border-radius: 2px;
+}
+@keyframes fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(700px) rotate(720deg); opacity: 0; }
+}
+
+/* ONBOARDING CARD SELECT */
+.select-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px; border-radius: 14px;
+  border: 1.5px solid var(--border); background: var(--surface);
+  cursor: pointer; transition: all 0.18s; margin-bottom: 10px;
+  -webkit-appearance: none;
+}
+.select-card:active { transform: scale(0.98); }
+.select-card.chosen { border-color: var(--primary); background: rgba(232,105,74,0.06); }
+
+/* SIZE GRID */
+.size-grid { display: grid; gap: 10px; }
+.size-btn {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 8px; border-radius: 12px;
+  border: 1.5px solid var(--border); background: var(--surface);
+  cursor: pointer; transition: all 0.18s;
+}
+.size-btn.chosen { border-color: var(--primary); background: rgba(232,105,74,0.06); }
+.size-val { font-size: 22px; font-weight: 700; color: var(--text); font-family: 'DM Sans', sans-serif; }
+.size-unit { font-size: 11px; color: var(--dim); }
+.size-btn.chosen .size-val { color: var(--primary); }
+
+/* JOURNEY HEATMAP */
+.heat-day {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+/* INSTALL BANNER */
+#install-banner {
+  display: none;
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: #fff; border-radius: 14px;
+  padding: 12px 18px; font-size: 14px; font-family: 'DM Sans', sans-serif;
+  z-index: 999; max-width: 340px; width: 90%;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } }
+#install-banner.show { display: flex; align-items: center; gap: 12px; }
+
+/* SECTION LABELS */
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--dim); margin-bottom: 10px;
+}
+
+/* MISC */
+.divider { height: 1px; background: var(--border); margin: 4px 0; }
+input[type=text], textarea {
+  font-family: 'DM Sans', sans-serif;
+  -webkit-appearance: none; appearance: none;
+}
+input[type=text]:focus { outline: none; }
+
+/* WELCOME SCREEN DECORATIVE */
+.orb {
+  position: absolute; border-radius: 50%; pointer-events: none;
+}
+
+@media (min-width: 481px) {
+  #app { border-radius: 40px; margin-top: 20px; height: calc(100vh - 40px); height: calc(100dvh - 40px); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══════════════════════════════════════════════════
+       WELCOME SCREEN
+  ═══════════════════════════════════════════════════ -->
+  <div class="screen active" id="screen-welcome" style="background: linear-gradient(160deg, #FAF7F2 0%, #F5EDE4 60%, #EDD5C0 100%); justify-content: center; align-items: center; text-align: center; padding: 40px 28px; overflow: hidden;">
+    <div class="orb" style="width:280px;height:280px;background:rgba(232,105,74,0.12);top:-80px;right:-80px;"></div>
+    <div class="orb" style="width:180px;height:180px;background:rgba(242,201,76,0.18);bottom:-50px;left:-50px;"></div>
+    <div style="position:relative; max-width:340px; animation: fadeUp 0.7s ease both;">
+      <div style="font-size:56px;margin-bottom:16px;">🌱</div>
+      <h1 class="display" style="font-size:clamp(48px,12vw,72px);color:var(--text);line-height:0.95;margin-bottom:18px;font-weight:700;">
+        You're<br><span style="color:var(--primary);">back.</span>
+      </h1>
+      <p style="font-size:17px;color:var(--dim);line-height:1.7;margin-bottom:40px;">
+        Rize is a comeback app for women who are ready to return to movement — at their own pace, without shame.
+      </p>
+      <button class="btn btn-primary" onclick="startOnboarding()" style="font-size:17px;padding:18px;border-radius:14px;">
+        Begin my comeback →
+      </button>
+      <p style="font-size:13px;color:var(--dim);margin-top:16px;">Free to start · No gym required · No judgment</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       ONBOARDING
+  ═══════════════════════════════════════════════════ -->
+  <div class="screen hidden" id="screen-onboarding" style="padding:0;">
+    <!-- Progress -->
+    <div style="padding:20px 24px 0; flex-shrink:0;">
+      <div class="progress-track"><div class="progress-fill" id="ob-progress" style="width:20%;"></div></div>
+      <p style="font-size:12px;color:var(--dim);margin-top:6px;" id="ob-step-label">Step 1 of 5</p>
+    </div>
+    <div class="scroll-body" style="padding:20px 24px 40px;" id="ob-content">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       MAIN APP (tabs)
+  ═══════════════════════════════════════════════════ -->
+  <div class="screen hidden" id="screen-main" style="padding:0;">
+    <!-- Tab pages -->
+    <div style="flex:1;overflow:hidden;position:relative;">
+      <div id="tab-today"   class="scroll-body" style="position:absolute;inset:0;padding-bottom:0;"></div>
+      <div id="tab-journey" class="scroll-body" style="display:none;position:absolute;inset:0;padding:28px 20px 20px;"></div>
+      <div id="tab-library" class="scroll-body" style="display:none;position:absolute;inset:0;padding:28px 20px 20px;"></div>
+      <div id="tab-coach"   style="display:none;position:absolute;inset:0;flex-direction:column;"></div>
+      <div id="tab-me"      class="scroll-body" style="display:none;position:absolute;inset:0;padding:28px 20px 20px;"></div>
+    </div>
+    <nav id="bottom-nav">
+      <button class="nav-item active" onclick="switchTab('today',this)" data-tab="today">
+        <span class="nav-icon">🏠</span><span class="nav-label">Today</span><div class="nav-dot"></div>
+      </button>
+      <button class="nav-item" onclick="switchTab('journey',this)" data-tab="journey">
+        <span class="nav-icon">🗺️</span><span class="nav-label">Journey</span><div class="nav-dot"></div>
+      </button>
+      <button class="nav-item" onclick="switchTab('library',this)" data-tab="library">
+        <span class="nav-icon">📚</span><span class="nav-label">Library</span><div class="nav-dot"></div>
+      </button>
+      <button class="nav-item" onclick="switchTab('coach',this)" data-tab="coach">
+        <span class="nav-icon">🌿</span><span class="nav-label">Coach</span><div class="nav-dot"></div>
+      </button>
+      <button class="nav-item" onclick="switchTab('me',this)" data-tab="me">
+        <span class="nav-icon">👤</span><span class="nav-label">Me</span><div class="nav-dot"></div>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       WORKOUT SCREEN
+  ═══════════════════════════════════════════════════ -->
+  <div class="screen hidden" id="screen-workout" style="background:#1A1008;color:#fff;padding:0;">
+    <div style="padding:20px 20px 8px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <button class="btn" onclick="exitWorkout()" style="width:auto;padding:8px 14px;background:rgba(255,255,255,0.1);color:#fff;font-size:14px;border-radius:8px;">
+        I need to stop
+      </button>
+      <span id="wo-counter" style="font-size:14px;opacity:0.5;font-family:'DM Sans',sans-serif;"></span>
+    </div>
+    <div style="padding:0 20px 8px;flex-shrink:0;">
+      <div class="progress-track"><div class="progress-fill" id="wo-progress" style="background:var(--primary);"></div></div>
+    </div>
+    <div class="scroll-body" style="flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:16px;" id="wo-body">
+    </div>
+    <div style="padding:12px 20px 20px;flex-shrink:0;" id="wo-action"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       CELEBRATION SCREEN
+  ═══════════════════════════════════════════════════ -->
+  <div class="screen hidden" id="screen-celebrate" style="overflow:hidden;justify-content:center;align-items:center;text-align:center;padding:28px;">
+    <div id="confetti-container" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+    <div style="position:relative;max-width:360px;width:100%;" id="celebrate-content"></div>
+  </div>
+
+</div><!-- /#app -->
+
+<!-- Install banner -->
+<div id="install-banner">
+  <span style="font-size:24px;">📲</span>
+  <div style="flex:1;">
+    <strong>Add Rize to your home screen</strong><br>
+    <span style="opacity:0.7;font-size:13px;">Tap the menu → "Add to Home Screen"</span>
+  </div>
+  <button onclick="document.getElementById('install-banner').classList.remove('show')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">×</button>
+</div>
+
+<style>
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(24px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+const STATE = {
+  user: null,
+  sessions: [],
+  todayFeeling: null,
+  obStep: 1,
+  obData: { name:'', comeback_reason:'', life_stage:'', session_minutes:20, sessions_per_week:3, body_feeling:'' },
+  activeWorkout: null,
+  woExIdx: 0,
+  woPhase: 'exercise', // exercise | rest
+  woTimer: 0,
+  woInterval: null,
+  woStartTime: 0,
+  chatMessages: [],
+  chatLoading: false,
+  privacyToggle: false,
+  deleteConfirm: false,
+  currentTab: 'today',
+};
+
+// Load from localStorage
+try {
+  const saved = localStorage.getItem('rize_state');
+  if (saved) {
+    const s = JSON.parse(saved);
+    STATE.user = s.user || null;
+    STATE.sessions = s.sessions || [];
+  }
+} catch(e) {}
+
+function save() {
+  try { localStorage.setItem('rize_state', JSON.stringify({ user: STATE.user, sessions: STATE.sessions })); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const EXERCISES = [
+  { id:1, name:'Glute Bridge', icon:'🧘', dur:40, reps:12, instructions:'Lie on back, knees bent. Press feet down and lift hips until body is straight. Lower slowly.', diff:1 },
+  { id:2, name:'Wall Push-Up', icon:'🤲', dur:30, reps:10, instructions:'Stand arm\'s length from wall. Hands flat, bend elbows to bring chest forward. Push back.', diff:1 },
+  { id:3, name:'Standing March', icon:'🚶', dur:45, reps:null, instructions:'March in place, lifting knees to hip height. Swing arms naturally. Keep breathing.', diff:1 },
+  { id:4, name:'Sit-to-Stand', icon:'🪑', dur:40, reps:10, instructions:'Sit at edge of chair, lean slightly forward, push through feet to stand. Lower back slowly.', diff:2 },
+  { id:5, name:'Cat-Cow Stretch', icon:'🐱', dur:60, reps:null, instructions:'On hands and knees. Inhale and arch (cow). Exhale and round spine (cat). Move slowly.', diff:1 },
+  { id:6, name:'Dead Bug', icon:'🐛', dur:40, reps:8, instructions:'Lie on back, arms up, knees at 90°. Lower opposite arm and leg. Return and switch sides.', diff:2 },
+  { id:7, name:'Hip Abduction', icon:'🦵', dur:40, reps:12, instructions:'Lie on side, legs stacked. Lift top leg to hip height, hold 2 seconds, lower slowly.', diff:1 },
+  { id:8, name:'Box Breathing', icon:'💨', dur:60, reps:null, instructions:'Inhale 4 counts · Hold 4 · Exhale 4 · Hold 4. Repeat to close your session with calm.', diff:1 },
+];
+
+const WORKOUTS = [
+  { id:1, name:'Full Body Wake-Up', dur:12, focus:'Full Body', diff:1, week:1, exIds:[1,2,3,5,8] },
+  { id:2, name:'Lower Body Reintro', dur:15, focus:'Lower Body', diff:1, week:1, exIds:[1,4,7,5,8] },
+  { id:3, name:'Core & Breathwork', dur:18, focus:'Core', diff:2, week:2, exIds:[6,1,5,7,8] },
+  { id:4, name:'Full Movement Flow', dur:22, focus:'Full Body', diff:2, week:2, exIds:[3,2,1,6,7,8] },
+];
+
+const COMEBACK_REASONS = [
+  { id:'baby',    emoji:'🤱', label:'I had a baby (or two)' },
+  { id:'work',    emoji:'💼', label:'Work took over everything' },
+  { id:'life',    emoji:'🏠', label:'Life just got in the way' },
+  { id:'burnout', emoji:'😮‍💨', label:'Burnout — I lost myself' },
+  { id:'injury',  emoji:'🤕', label:'I was injured or unwell' },
+  { id:'stopped', emoji:'✨', label:"I just... stopped. No big reason." },
+];
+
+const LIFE_STAGES = [
+  { id:'postpartum_early', label:'Postpartum (0–18 months)' },
+  { id:'postpartum_late',  label:'Postpartum (18+ months)' },
+  { id:'perimenopause',    label:'Perimenopause / hormonal changes' },
+  { id:'post_burnout',     label:'Post-burnout / stress recovery' },
+  { id:'post_injury',      label:'Post-injury return' },
+  { id:'general',          label:'General lifestyle re-entry' },
+];
+
+const BODY_FEELINGS = [
+  { id:'ready',    label:'Strong and ready, just rusty' },
+  { id:'tired',    label:'A bit tired, but motivated' },
+  { id:'depleted', label:'Pretty depleted — need to be gentle' },
+  { id:'unknown',  label:"I honestly don't know yet" },
+];
+
+const WEEK_TITLES = ['Waking Up','Finding Rhythm','Building Again','Momentum'];
+const CELEBRATIONS = ['You showed up.','That counts. Every time.','One session closer.','Your body remembers.','You did it.','That\'s real progress.','Stronger than yesterday.','You chose yourself today.'];
+const MILESTONES = [
+  { n:1,  title:'First Step',      note:'You started. That\'s not nothing — that\'s everything.' },
+  { n:3,  title:'Finding Your Feet', note:'Three sessions in. Your body is waking up.' },
+  { n:5,  title:'Building Habit',  note:'Five sessions. You\'re building something real.' },
+  { n:10, title:'10 Sessions',     note:'Ten sessions done. You\'ve earned this moment.' },
+];
+const COACH_MSGS = {
+  default:'Your plan is ready whenever you are. No pressure — just you and your body, at your pace.',
+  baby:'Postpartum recovery is one of the most underrated journeys. You\'re doing something that takes real courage.',
+  burnout:'Coming back from burnout takes real courage. Your body wants to move — we\'ll find the right pace.',
+  work:'Even 10 minutes is a vote for yourself. Let\'s start there and build from it.',
+  ready:'You\'ve got energy today — let\'s use it wisely and build real momentum.',
+  tired:'Tired is okay. We\'ll keep it gentle and let your body lead today.',
+  depleted:'Rest is part of training. Today we move gently — that\'s the whole plan.',
+};
+
+function diffColor(d) { return d<=1?'var(--easy)':d<=3?'var(--mid)':'var(--hard)'; }
+function diffLabel(d) { return d<=1?'Gentle':d<=3?'Moderate':'Challenge'; }
+
+// ═══════════════════════════════════════════════════════
+// SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.classList.add('hidden');
+  });
+  const el = document.getElementById('screen-'+id);
+  el.classList.remove('hidden');
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  if (STATE.user) {
+    renderMain();
+    showScreen('main');
+  } else {
+    showScreen('welcome');
+  }
+  initPWA();
+});
+
+// ═══════════════════════════════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════════════════════════════
+function startOnboarding() {
+  STATE.obStep = 1;
+  STATE.obData = { name:'', comeback_reason:'', life_stage:'', session_minutes:20, sessions_per_week:3, body_feeling:'' };
+  renderObStep();
+  showScreen('onboarding');
+}
+
+function renderObStep() {
+  const pct = (STATE.obStep/5)*100;
+  document.getElementById('ob-progress').style.width = pct+'%';
+  document.getElementById('ob-step-label').textContent = `Step ${STATE.obStep} of 5`;
+  const c = document.getElementById('ob-content');
+  c.style.opacity=0; c.style.transform='translateY(16px)';
+  setTimeout(()=>{ c.style.transition='all 0.3s ease'; c.style.opacity=1; c.style.transform='none'; },30);
+
+  const steps = [null, renderObName, renderObStory, renderObLifeStage, renderObTime, renderObBody];
+  c.innerHTML = steps[STATE.obStep]();
+}
+
+function obNext() {
+  if (STATE.obStep < 5) { STATE.obStep++; renderObStep(); }
+  else { finishOnboarding(); }
+}
+
+function renderObName() { return `
+  <h2 class="display" style="font-size:30px;color:var(--text);margin-bottom:8px;">First, what's your name?</h2>
+  <p style="color:var(--dim);margin-bottom:28px;font-size:15px;line-height:1.6;">Just your first name — this is your space.</p>
+  <input type="text" id="ob-name-input" placeholder="Your name..." value="${STATE.obData.name}"
+    style="width:100%;padding:16px 18px;border-radius:12px;border:2px solid var(--border);font-size:18px;color:var(--text);background:var(--surface);transition:border-color 0.2s;margin-bottom:20px;"
+    oninput="STATE.obData.name=this.value;document.getElementById('ob-name-btn').disabled=!this.value.trim();"
+    onkeydown="if(event.key==='Enter'&&this.value.trim())obNext();"
+    onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+  <button class="btn btn-primary" id="ob-name-btn" onclick="obNext()" ${!STATE.obData.name?'disabled':''}>Continue</button>
+`; }
+
+function renderObStory() { return `
+  <h2 class="display" style="font-size:28px;color:var(--text);margin-bottom:8px;">Where did you leave off, ${STATE.obData.name}?</h2>
+  <p style="color:var(--dim);margin-bottom:22px;font-size:15px;line-height:1.6;">No wrong answers. This helps us build the right plan for you.</p>
+  ${COMEBACK_REASONS.map(r=>`
+    <button class="select-card ${STATE.obData.comeback_reason===r.id?'chosen':''}" onclick="STATE.obData.comeback_reason='${r.id}';document.querySelectorAll('.select-card').forEach(c=>c.classList.remove('chosen'));this.classList.add('chosen');setTimeout(obNext,250);">
+      <span style="font-size:26px;">${r.emoji}</span>
+      <span style="font-size:15px;font-weight:500;color:var(--text);">${r.label}</span>
+    </button>`).join('')}
+`; }
+
+function renderObLifeStage() { return `
+  <h2 class="display" style="font-size:28px;color:var(--text);margin-bottom:8px;">Where are you right now?</h2>
+  <p style="color:var(--dim);margin-bottom:22px;font-size:15px;line-height:1.6;">This shapes the exercises and pace we suggest.</p>
+  ${LIFE_STAGES.map(s=>`
+    <button class="select-card ${STATE.obData.life_stage===s.id?'chosen':''}" onclick="STATE.obData.life_stage='${s.id}';document.querySelectorAll('.select-card').forEach(c=>c.classList.remove('chosen'));this.classList.add('chosen');setTimeout(obNext,250);">
+      <span style="font-size:15px;font-weight:500;color:var(--text);">${s.label}</span>
+    </button>`).join('')}
+`; }
+
+function renderObTime() { return `
+  <h2 class="display" style="font-size:28px;color:var(--text);margin-bottom:8px;">How much time do you have?</h2>
+  <p style="color:var(--dim);margin-bottom:24px;font-size:15px;line-height:1.6;">Be honest — this is just for you. Even 10 minutes counts.</p>
+  <p class="section-label">Session length</p>
+  <div class="size-grid" style="grid-template-columns:1fr 1fr;margin-bottom:22px;">
+    ${[10,20,30,45].map(m=>`
+      <button class="size-btn ${STATE.obData.session_minutes===m?'chosen':''}" onclick="STATE.obData.session_minutes=${m};document.querySelectorAll('.size-btn').forEach((b,i)=>{if(i<4)b.classList.toggle('chosen',${m}===[10,20,30,45][i])});">
+        <span class="size-val">${m}</span><span class="size-unit">minutes</span>
+      </button>`).join('')}
+  </div>
+  <p class="section-label">Days per week</p>
+  <div class="size-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:28px;">
+    ${[2,3,4,5].map(d=>`
+      <button class="size-btn ${STATE.obData.sessions_per_week===d?'chosen':''}" onclick="STATE.obData.sessions_per_week=${d};document.querySelectorAll('.size-btn').forEach((b,i)=>{if(i>=4)b.classList.toggle('chosen',${d}===[2,3,4,5][i-4])});">
+        <span class="size-val">${d}</span><span class="size-unit">days</span>
+      </button>`).join('')}
+  </div>
+  <button class="btn btn-primary" onclick="obNext()">That's right for me</button>
+`; }
+
+function renderObBody() { return `
+  <h2 class="display" style="font-size:28px;color:var(--text);margin-bottom:8px;">How does your body feel right now?</h2>
+  <p style="color:var(--dim);margin-bottom:22px;font-size:15px;line-height:1.6;">Not a fitness test — just a check-in with yourself.</p>
+  ${BODY_FEELINGS.map(f=>`
+    <button class="select-card ${STATE.obData.body_feeling===f.id?'chosen':''}" onclick="STATE.obData.body_feeling='${f.id}';document.querySelectorAll('.select-card').forEach(c=>c.classList.remove('chosen'));this.classList.add('chosen');setTimeout(finishOnboarding,250);">
+      <span style="font-size:16px;font-weight:500;color:var(--text);">${f.label}</span>
+    </button>`).join('')}
+`; }
+
+function finishOnboarding() {
+  STATE.user = { ...STATE.obData };
+  STATE.chatMessages = [{ role:'assistant', content:`Hi ${STATE.user.name} 🌿 I'm Sage. I'm here whenever you need me — whether that's a question about a session, or just a check-in. What's on your mind?` }];
+  save();
+  renderMain();
+  showScreen('main');
+  switchTab('today', document.querySelector('[data-tab="today"]'));
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN TAB SWITCHER
+// ═══════════════════════════════════════════════════════
+function switchTab(tabId, btn) {
+  ['today','journey','library','coach','me'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if(el) el.style.display = t===tabId ? (t==='coach'?'flex':'block') : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  STATE.currentTab = tabId;
+
+  if(tabId==='journey') renderJourney();
+  if(tabId==='library') renderLibrary();
+  if(tabId==='coach') renderCoach();
+  if(tabId==='me') renderMe();
+}
+
+// ═══════════════════════════════════════════════════════
+// TODAY TAB
+// ═══════════════════════════════════════════════════════
+function renderMain() {
+  renderToday();
+  // init coach messages if needed
+  if(!STATE.chatMessages.length) {
+    STATE.chatMessages = [{ role:'assistant', content:`Hi ${STATE.user.name} 🌿 I'm Sage. I'm here whenever you need me. What's on your mind?` }];
+  }
+}
+
+function renderToday() {
+  const u = STATE.user;
+  const sessions = STATE.sessions;
+  const weekNum = Math.floor(sessions.length/3)+1;
+  const hour = new Date().getHours();
+  const greeting = hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+  const coachKey = STATE.todayFeeling || u.comeback_reason || 'default';
+  const coachMsg = COACH_MSGS[coachKey] || COACH_MSGS.default;
+  const wIdx = Math.min(Math.floor(sessions.length/3), WORKOUTS.length-1);
+  const todayW = STATE.todayFeeling==='depleted'
+    ? {...WORKOUTS[0], name:'Gentle Movement', dur:10}
+    : {...WORKOUTS[wIdx], dur: STATE.todayFeeling==='tired' ? Math.min(WORKOUTS[wIdx].dur,15) : WORKOUTS[wIdx].dur};
+
+  const completedToday = sessions.filter(s => new Date(s.at).toDateString()===new Date().toDateString());
+
+  const feelingHtml = STATE.todayFeeling
+    ? (STATE.todayFeeling==='depleted'
+        ? `<div class="card" style="background:rgba(76,175,125,0.1);border-color:rgba(76,175,125,0.3);margin:16px 20px 0;">
+             <p style="font-weight:600;margin-bottom:4px;">💚 Rest is training too.</p>
+             <p style="color:var(--dim);font-size:14px;line-height:1.6;">Your plan is right here whenever you're ready. No pressure at all.</p>
+           </div>` : '')
+    : `<div class="card" style="margin:16px 20px 0;">
+         <p class="section-label" style="margin-bottom:12px;">How are you feeling today?</p>
+         <div style="display:flex;gap:8px;">
+           <button class="feeling-btn" onclick="setFeeling('ready')"><span class="feeling-emoji">😊</span><span class="feeling-label">Good</span></button>
+           <button class="feeling-btn" onclick="setFeeling('tired')"><span class="feeling-emoji">😐</span><span class="feeling-label">So-so</span></button>
+           <button class="feeling-btn" onclick="setFeeling('depleted')"><span class="feeling-emoji">😔</span><span class="feeling-label">Rough</span></button>
+         </div>
+       </div>`;
+
+  document.getElementById('tab-today').innerHTML = `
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);padding:48px 24px 28px;color:#fff;">
+      <p style="font-size:14px;opacity:0.8;margin-bottom:4px;">${greeting},</p>
+      <h1 class="display" style="font-size:34px;font-weight:700;margin-bottom:18px;">${u.name} 🌱</h1>
+      <div style="display:flex;gap:10px;">
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 14px;text-align:center;backdrop-filter:blur(4px);">
+          <div style="font-size:20px;font-weight:700;font-family:'DM Sans',sans-serif;">${sessions.length}</div>
+          <div style="font-size:11px;opacity:0.75;">sessions</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 14px;text-align:center;backdrop-filter:blur(4px);">
+          <div style="font-size:20px;font-weight:700;font-family:'DM Sans',sans-serif;">Wk ${weekNum}</div>
+          <div style="font-size:11px;opacity:0.75;">comeback</div>
+        </div>
+        ${completedToday.length?`<div style="background:var(--accent);border-radius:10px;padding:8px 14px;text-align:center;">
+          <div style="font-size:20px;font-weight:700;color:var(--text);">✓</div>
+          <div style="font-size:11px;color:var(--text);opacity:0.7;">today</div>
+        </div>`:''}
+      </div>
+    </div>
+
+    ${feelingHtml}
+
+    <!-- Today's workout -->
+    <div style="padding:16px 20px 0;">
+      <p class="section-label">Today's session</p>
+      <div class="card" style="background:linear-gradient(135deg,#FFF8F5,#FFF3EE);border-color:rgba(232,105,74,0.25);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+          <div>
+            <h3 class="display" style="font-size:22px;color:var(--text);margin-bottom:6px;">${todayW.name}</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="tag" style="background:rgba(138,122,110,0.12);color:var(--dim);">${todayW.focus}</span>
+              <span style="font-size:13px;color:var(--dim);">${todayW.dur} min</span>
+            </div>
+          </div>
+          <div style="width:13px;height:13px;border-radius:50%;background:${diffColor(todayW.diff)};flex-shrink:0;margin-top:4px;" title="${diffLabel(todayW.diff)}"></div>
+        </div>
+        <button class="btn btn-primary" onclick="startWorkout(${todayW.id})">Start session →</button>
+      </div>
+    </div>
+
+    <!-- Coach card -->
+    <div style="padding:12px 20px 0;">
+      <div class="card" style="background:rgba(242,201,76,0.15);border-color:rgba(242,201,76,0.5);">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="font-size:26px;flex-shrink:0;">🌿</div>
+          <div>
+            <p style="font-size:12px;font-weight:700;color:var(--dim);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:5px;">Sage says</p>
+            <p style="font-size:15px;color:var(--text);line-height:1.65;">${coachMsg}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- More workouts -->
+    <div style="padding:16px 20px 80px;">
+      <p class="section-label">More sessions</p>
+      ${WORKOUTS.filter(w=>w.id!==todayW.id).map(w=>`
+        <button onclick="startWorkout(${w.id})" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;margin-bottom:10px;text-align:left;-webkit-appearance:none;">
+          <div style="width:10px;height:10px;border-radius:50%;background:${diffColor(w.diff)};flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif;">${w.name}</div>
+            <div style="font-size:13px;color:var(--dim);font-family:'DM Sans',sans-serif;">${w.dur} min · ${w.focus}</div>
+          </div>
+          <span style="color:var(--primary);font-size:20px;">›</span>
+        </button>`).join('')}
+    </div>
+  `;
+}
+
+function setFeeling(f) {
+  STATE.todayFeeling = f;
+  renderToday();
+}
+
+// ═══════════════════════════════════════════════════════
+// WORKOUT
+// ═══════════════════════════════════════════════════════
+function startWorkout(wId) {
+  const w = WORKOUTS.find(x=>x.id===wId) || WORKOUTS[0];
+  STATE.activeWorkout = w;
+  STATE.woExIdx = 0;
+  STATE.woPhase = 'exercise';
+  STATE.woStartTime = Date.now();
+  const exs = (w.exIds||[1,2,3,5,8]).map(id=>EXERCISES.find(e=>e.id===id)).filter(Boolean);
+  STATE.woExercises = exs;
+  STATE.woTimer = exs[0]?.dur||40;
+  clearInterval(STATE.woInterval);
+  STATE.woInterval = setInterval(tickWorkout, 1000);
+  renderWorkoutFrame();
+  showScreen('workout');
+}
+
+function tickWorkout() {
+  STATE.woTimer--;
+  if(STATE.woTimer<=0) {
+    if(STATE.woPhase==='exercise') {
+      const isLast = STATE.woExIdx >= STATE.woExercises.length-1;
+      if(isLast) { finishWorkout(); return; }
+      STATE.woPhase='rest'; STATE.woTimer=20;
+    } else {
+      STATE.woExIdx++;
+      STATE.woPhase='exercise';
+      STATE.woTimer=STATE.woExercises[STATE.woExIdx]?.dur||40;
+    }
+  }
+  renderWorkoutFrame();
+}
+
+function renderWorkoutFrame() {
+  const exs = STATE.woExercises;
+  const idx = STATE.woExIdx;
+  const ex = exs[idx];
+  if(!ex) return;
+  const total = exs.length;
+  const isLast = idx >= total-1;
+  const pct = ((idx+(STATE.woPhase==='rest'?1:0))/total)*100;
+
+  document.getElementById('wo-counter').textContent = `${idx+1} of ${total}`;
+  document.getElementById('wo-progress').style.width = pct+'%';
+
+  if(STATE.woPhase==='rest') {
+    const nextEx = exs[idx+1];
+    document.getElementById('wo-body').innerHTML = `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 0;">
+        <p style="font-size:14px;opacity:0.5;margin-bottom:8px;">Rest</p>
+        <div class="mono" style="font-size:80px;font-weight:700;color:var(--success);line-height:1;">${STATE.woTimer}</div>
+        <p style="font-size:16px;opacity:0.6;margin-top:12px;">Next: ${nextEx?.name||''}</p>
+      </div>`;
+    document.getElementById('wo-action').innerHTML = `<button class="btn" style="background:rgba(255,255,255,0.1);color:#fff;" onclick="skipRest()">Skip rest →</button>`;
+  } else {
+    const urgent = STATE.woTimer<=5;
+    document.getElementById('wo-body').innerHTML = `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border-radius:20px;padding:30px 20px;text-align:center;min-height:200px;">
+        <div style="font-size:72px;margin-bottom:10px;">${ex.icon}</div>
+        <div class="mono timer-display ${urgent?'urgent':''}">${ex.reps?ex.reps:STATE.woTimer}</div>
+        <div style="font-size:14px;opacity:0.45;margin-top:4px;">${ex.reps?'reps':'seconds'}</div>
+      </div>
+      <div>
+        <h2 class="display" style="font-size:24px;margin-bottom:8px;">${ex.name}</h2>
+        <p style="font-size:14px;opacity:0.6;line-height:1.65;">${ex.instructions}</p>
+      </div>`;
+    document.getElementById('wo-action').innerHTML = `<button class="btn btn-primary" onclick="doneTap()" style="font-size:18px;padding:18px;">${isLast?'Finish session ✓':'Done →'}</button>`;
+  }
+}
+
+function doneTap() {
+  const isLast = STATE.woExIdx >= STATE.woExercises.length-1;
+  if(isLast) { finishWorkout(); return; }
+  clearInterval(STATE.woInterval);
+  STATE.woPhase='rest'; STATE.woTimer=20;
+  STATE.woInterval = setInterval(tickWorkout,1000);
+  renderWorkoutFrame();
+}
+
+function skipRest() {
+  clearInterval(STATE.woInterval);
+  STATE.woExIdx++;
+  STATE.woPhase='exercise';
+  STATE.woTimer=STATE.woExercises[STATE.woExIdx]?.dur||40;
+  STATE.woInterval=setInterval(tickWorkout,1000);
+  renderWorkoutFrame();
+}
+
+function finishWorkout() {
+  clearInterval(STATE.woInterval);
+  const dur = Math.max(1,Math.round((Date.now()-STATE.woStartTime)/60000));
+  const session = { at:new Date().toISOString(), workoutId:STATE.activeWorkout?.id, exDone:STATE.woExercises.length, dur };
+  STATE.sessions.push(session);
+  save();
+  showCelebration(session);
+}
+
+function exitWorkout() {
+  clearInterval(STATE.woInterval);
+  showScreen('main');
+  renderToday();
+}
+
+// ═══════════════════════════════════════════════════════
+// CELEBRATION
+// ═══════════════════════════════════════════════════════
+function showCelebration(session) {
+  const total = STATE.sessions.length;
+  const headline = CELEBRATIONS[total % CELEBRATIONS.length];
+  const milestone = [...MILESTONES].reverse().find(m=>m.n<=total);
+
+  // confetti
+  const container = document.getElementById('confetti-container');
+  container.innerHTML='';
+  const colors=['#E8694A','#F2C94C','#A8D5B5','#4CAF7D','#EDD5C0'];
+  for(let i=0;i<35;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}%;top:-10px;background:${colors[i%colors.length]};animation-delay:${Math.random()*1.5}s;animation-duration:${2+Math.random()*1.5}s;transform:rotate(${Math.random()*360}deg);width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'3px'};`;
+    container.appendChild(el);
+  }
+
+  document.getElementById('celebrate-content').innerHTML = `
+    <div style="font-size:64px;margin-bottom:8px;">🎉</div>
+    <h1 class="display" style="font-size:42px;color:var(--primary);margin-bottom:10px;">${headline}</h1>
+    <p style="color:var(--dim);font-size:16px;margin-bottom:28px;line-height:1.6;">
+      That's ${total} session${total!==1?'s':''} in your comeback.
+    </p>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:24px;">
+      ${[['Minutes','moved',session.dur||'—'],['Exercises','done',session.exDone],['Total','sessions',total]].map(([a,b,v])=>`
+        <div class="card" style="flex:1;text-align:center;padding:14px 8px;">
+          <div class="mono" style="font-size:26px;font-weight:700;color:var(--primary);">${v}</div>
+          <div style="font-size:11px;color:var(--dim);line-height:1.3;">${a}<br>${b}</div>
+        </div>`).join('')}
+    </div>
+    ${milestone?`<div class="card" style="background:rgba(242,201,76,0.18);border-color:rgba(242,201,76,0.6);margin-bottom:20px;text-align:left;">
+      <p style="font-size:12px;font-weight:700;color:var(--dim);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:5px;">🏅 ${milestone.title}</p>
+      <p style="font-size:15px;color:var(--text);">${milestone.note}</p>
+    </div>`:''}
+    <button class="btn btn-primary" onclick="afterCelebration()">See what's next →</button>
+  `;
+
+  showScreen('celebrate');
+}
+
+function afterCelebration() {
+  renderToday();
+  showScreen('main');
+  switchTab('today', document.querySelector('[data-tab="today"]'));
+}
+
+// ═══════════════════════════════════════════════════════
+// JOURNEY TAB
+// ═══════════════════════════════════════════════════════
+function renderJourney() {
+  const sessions = STATE.sessions;
+  const weekNum = Math.min(Math.floor(sessions.length/3)+1,4);
+  const pctArc = Math.min((sessions.length/20)*100,100);
+
+  const last7 = Array.from({length:7},(_,i)=>{
+    const d=new Date(); d.setDate(d.getDate()-(6-i));
+    const ds=d.toDateString();
+    const count=sessions.filter(s=>new Date(s.at).toDateString()===ds).length;
+    return { label:d.toLocaleDateString('en',{weekday:'short'}).charAt(0), count };
+  });
+
+  const arcD='M 15 75 A 55 55 0 0 1 125 75';
+  const arcLen=172;
+
+  document.getElementById('tab-journey').innerHTML=`
+    <h2 class="display" style="font-size:26px;color:var(--text);margin-bottom:4px;">Your comeback map.</h2>
+    <p style="color:var(--dim);font-size:14px;margin-bottom:20px;">Week ${weekNum} · ${sessions.length} sessions done</p>
+
+    <!-- Arc -->
+    <div class="card" style="text-align:center;padding:24px 20px;margin-bottom:14px;">
+      <svg width="140" height="80" viewBox="0 0 140 80" style="overflow:visible;">
+        <path d="${arcD}" fill="none" stroke="var(--border)" stroke-width="8" stroke-linecap="round"/>
+        <path d="${arcD}" fill="none" stroke="var(--primary)" stroke-width="8" stroke-linecap="round"
+          stroke-dasharray="${(pctArc/100)*arcLen} ${arcLen}"/>
+      </svg>
+      <p class="display" style="font-size:18px;color:var(--text);margin-top:4px;">Week ${weekNum}: ${WEEK_TITLES[weekNum-1]}</p>
+    </div>
+
+    <!-- 7-day grid -->
+    <div class="card" style="margin-bottom:14px;">
+      <p class="section-label">Last 7 days</p>
+      <div style="display:flex;gap:8px;justify-content:space-between;">
+        ${last7.map(d=>`
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+            <div class="heat-day" style="background:${d.count?'var(--primary)':'var(--border)'};opacity:${d.count?1:0.4};">
+              ${d.count?'<span style="color:#fff;font-size:13px;">✓</span>':''}
+            </div>
+            <span style="font-size:11px;color:var(--dim);">${d.label}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Narrative -->
+    <div class="card" style="background:rgba(232,105,74,0.07);border-color:rgba(232,105,74,0.2);margin-bottom:14px;">
+      <p class="section-label" style="color:var(--primary);">How far you've come</p>
+      <p style="font-size:15px;color:var(--text);line-height:1.7;">
+        ${sessions.length===0?'Your comeback starts with one session. Your plan is ready.'
+          :sessions.length<3?'You started. That\'s not nothing — that\'s everything. Your body is waking up.'
+          :`You've completed ${sessions.length} sessions. Your body is remembering what it\'s capable of. That\'s real progress.`}
+      </p>
+    </div>
+
+    <!-- Milestones -->
+    <p class="section-label">Milestones</p>
+    ${MILESTONES.map(m=>{
+      const done=sessions.length>=m.n;
+      return `<div class="card" style="display:flex;gap:14px;align-items:center;margin-bottom:10px;opacity:${done?1:0.38};">
+        <div style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:${done?'var(--accent)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:16px;">
+          ${done?'🏅':'○'}
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif;">${m.title}</div>
+          <div style="font-size:13px;color:var(--dim);">${m.note}</div>
+        </div>
+      </div>`;
+    }).join('')}
+    <div style="height:60px;"></div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// LIBRARY TAB
+// ═══════════════════════════════════════════════════════
+function renderLibrary() {
+  document.getElementById('tab-library').innerHTML=`
+    <h2 class="display" style="font-size:26px;color:var(--text);margin-bottom:4px;">All sessions.</h2>
+    <p style="color:var(--dim);font-size:14px;margin-bottom:20px;">Choose any session, any time.</p>
+    ${WORKOUTS.map(w=>`
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+          <div>
+            <h3 class="display" style="font-size:20px;color:var(--text);margin-bottom:6px;">${w.name}</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="tag" style="background:${diffColor(w.diff)}30;color:${diffColor(w.diff)};">${diffLabel(w.diff)}</span>
+              <span style="font-size:13px;color:var(--dim);">${w.dur} min · ${w.focus}</span>
+            </div>
+          </div>
+          <div style="width:12px;height:12px;border-radius:50%;background:${diffColor(w.diff)};flex-shrink:0;margin-top:4px;"></div>
+        </div>
+        <button class="btn btn-ghost" onclick="startWorkout(${w.id})" style="font-size:14px;padding:12px;">Start →</button>
+      </div>`).join('')}
+    <div style="height:60px;"></div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// COACH TAB
+// ═══════════════════════════════════════════════════════
+function renderCoach() {
+  const tab = document.getElementById('tab-coach');
+  tab.style.cssText='display:flex;flex-direction:column;position:absolute;inset:0;';
+  tab.innerHTML=`
+    <!-- Header -->
+    <div style="padding:22px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🌿</div>
+        <div>
+          <h2 class="display" style="font-size:19px;color:var(--text);">Sage</h2>
+          <p style="font-size:13px;color:var(--success);">● Your comeback coach</p>
+        </div>
+      </div>
+    </div>
+    <!-- Messages -->
+    <div id="chat-messages" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;">
+      ${STATE.chatMessages.map(m=>chatBubbleHtml(m)).join('')}
+      ${STATE.chatLoading?'<div id="typing-indicator" style="display:flex;align-items:flex-start;"><div class="chat-bubble bubble-sage"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>':''}
+    </div>
+    <!-- Input -->
+    <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;padding-bottom:calc(10px + var(--safe-bottom));">
+      <input type="text" id="chat-input" placeholder="Ask Sage anything..."
+        style="flex:1;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;color:var(--text);background:var(--surface);transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"
+        onkeydown="if(event.key==='Enter')sendChat()">
+      <button id="chat-send-btn" onclick="sendChat()" style="width:46px;height:46px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:20px;cursor:pointer;flex-shrink:0;transition:background 0.2s;">›</button>
+    </div>
+  `;
+  scrollChat();
+}
+
+function chatBubbleHtml(m) {
+  const isSage = m.role==='assistant';
+  return `<div style="display:flex;justify-content:${isSage?'flex-start':'flex-end'};">
+    <div class="chat-bubble ${isSage?'bubble-sage':'bubble-user'}">${m.content}</div>
+  </div>`;
+}
+
+function scrollChat() {
+  const el=document.getElementById('chat-messages');
+  if(el) setTimeout(()=>el.scrollTop=el.scrollHeight,50);
+}
+
+async function sendChat() {
+  const input=document.getElementById('chat-input');
+  if(!input||!input.value.trim()||STATE.chatLoading) return;
+  const msg=input.value.trim();
+  input.value='';
+  STATE.chatMessages.push({role:'user',content:msg});
+  STATE.chatLoading=true;
+
+  const el=document.getElementById('chat-messages');
+  el.innerHTML+=chatBubbleHtml({role:'user',content:msg});
+  el.innerHTML+=`<div id="typing-indicator" style="display:flex;align-items:flex-start;"><div class="chat-bubble bubble-sage"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  scrollChat();
+
+  const u=STATE.user;
+  const ctx={name:u.name,comeback_reason:u.comeback_reason,life_stage:u.life_stage,total_sessions:STATE.sessions.length,feeling_today:STATE.todayFeeling||'not checked in'};
+  const sys=`You are Sage, a warm non-judgmental fitness comeback coach. You help women returning to movement after a break — baby, burnout, injury, or life. Style: warm, direct, like a knowledgeable friend. Never preachy. Never mention calories/weight/appearance unless user brings it up first. Acknowledge rest as part of training. User context: ${JSON.stringify(ctx)}. Keep responses under 4 sentences unless asked for more. Be human, not robotic.`;
+
+  try {
+    const history=STATE.chatMessages.slice(-10).map(m=>({role:m.role,content:m.content}));
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:sys,messages:history})
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||"I'm here. Tell me more.";
+    STATE.chatMessages.push({role:'assistant',content:reply});
+    STATE.chatLoading=false;
+    const tip=document.getElementById('typing-indicator');
+    if(tip)tip.remove();
+    el.innerHTML+=chatBubbleHtml({role:'assistant',content:reply});
+    scrollChat();
+  } catch(e) {
+    STATE.chatLoading=false;
+    const tip=document.getElementById('typing-indicator');
+    if(tip)tip.remove();
+    const err="Something went wrong on my end — try again in a moment. I'm not going anywhere.";
+    STATE.chatMessages.push({role:'assistant',content:err});
+    el.innerHTML+=chatBubbleHtml({role:'assistant',content:err});
+    scrollChat();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// ME TAB
+// ═══════════════════════════════════════════════════════
+function renderMe() {
+  const u=STATE.user;
+  const sessions=STATE.sessions;
+  const ls=LIFE_STAGES.find(l=>l.id===u.life_stage);
+  const cr=COMEBACK_REASONS.find(r=>r.id===u.comeback_reason);
+
+  document.getElementById('tab-me').innerHTML=`
+    <!-- Profile header -->
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+      <div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:24px;color:#fff;font-weight:700;flex-shrink:0;">${u.name.charAt(0)}</div>
+      <div>
+        <h2 class="display" style="font-size:22px;color:var(--text);">${u.name}</h2>
+        <p style="font-size:14px;color:var(--dim);">${sessions.length} sessions · Week ${Math.floor(sessions.length/3)+1} comeback</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="card" style="margin-bottom:14px;">
+      <p class="section-label">Your comeback</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        ${[
+          ['Sessions done', sessions.length],
+          ['Goal', `${u.session_minutes}min × ${u.sessions_per_week}/wk`],
+          ['Life stage', ls?ls.label.split('(')[0].trim():'—'],
+          ['Reason', cr?cr.label.split(' ').slice(0,3).join(' ')+'…':'—'],
+        ].map(([l,v])=>`
+          <div>
+            <div style="font-size:12px;color:var(--dim);margin-bottom:2px;">${l}</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">${v}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Privacy -->
+    <div class="card" style="margin-bottom:14px;">
+      <p class="section-label">🔒 Privacy & data</p>
+      <p style="font-size:13px;color:var(--success);font-weight:500;margin-bottom:14px;">✓ We do not sell or share your data with third parties. Ever.</p>
+
+      <div class="toggle-wrap">
+        <span style="font-size:14px;color:var(--text);">Share anonymous usage data</span>
+        <button class="toggle ${STATE.privacyToggle?'on':''}" id="privacy-toggle" onclick="togglePrivacy()">
+          <div class="toggle-knob"></div>
+        </button>
+      </div>
+
+      <div style="height:12px;"></div>
+      <button class="btn btn-ghost" onclick="downloadData()" style="margin-bottom:10px;font-size:14px;padding:12px;">Download my data</button>
+      ${!STATE.deleteConfirm
+        ?`<button class="btn btn-danger" onclick="STATE.deleteConfirm=true;renderMe();" style="font-size:14px;padding:12px;">Delete my account</button>`
+        :`<div class="card" style="background:#FFF5F5;border-color:rgba(232,74,74,0.3);padding:16px;">
+            <p style="font-size:14px;color:var(--text);margin-bottom:12px;">This permanently deletes all your data. Are you sure?</p>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-secondary" onclick="STATE.deleteConfirm=false;renderMe();" style="font-size:14px;padding:12px;">Cancel</button>
+              <button class="btn" onclick="deleteAccount()" style="background:#E84A4A;color:#fff;font-size:14px;padding:12px;">Yes, delete</button>
+            </div>
+          </div>`}
+    </div>
+
+    <!-- Rize+ -->
+    <div class="card" style="background:linear-gradient(135deg,var(--text) 0%,#3d2a1a 100%);border:none;margin-bottom:14px;">
+      <p style="font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">RIZE+</p>
+      <p class="display" style="font-size:20px;color:#fff;margin-bottom:8px;">Unlock your full comeback.</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:16px;line-height:1.6;">Unlimited AI coaching, life-stage programs, buddy accountability & more.</p>
+      <button class="btn btn-accent" style="color:var(--text);">Start Rize+ — $9.99/mo</button>
+    </div>
+    <div style="height:60px;"></div>
+  `;
+}
+
+function togglePrivacy() {
+  STATE.privacyToggle=!STATE.privacyToggle;
+  const btn=document.getElementById('privacy-toggle');
+  if(btn){btn.classList.toggle('on',STATE.privacyToggle); const knob=btn.querySelector('.toggle-knob'); if(knob)knob.style.left=STATE.privacyToggle?'21px':'3px';}
+}
+
+function downloadData() {
+  const data=JSON.stringify({user:STATE.user,sessions:STATE.sessions},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='rize-my-data.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function deleteAccount() {
+  localStorage.removeItem('rize_state');
+  STATE.user=null; STATE.sessions=[]; STATE.chatMessages=[];
+  STATE.deleteConfirm=false; STATE.todayFeeling=null;
+  showScreen('welcome');
+}
+
+// ═══════════════════════════════════════════════════════
+// PWA INSTALL
+// ═══════════════════════════════════════════════════════
+let deferredPrompt=null;
+
+function initPWA() {
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    setTimeout(()=>document.getElementById('install-banner').classList.add('show'),3000);
+  });
+
+  // Register service worker
+  if('serviceWorker' in navigator){
+    const swCode=`
+const CACHE='rize-v1';
+const ASSETS=['/'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('/'))));});
+    `;
+    const blob=new Blob([swCode],{type:'text/javascript'});
+    const url=URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+  }
+
+  // Show iOS hint if Safari
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isStandalone=window.matchMedia('(display-mode: standalone)').matches;
+  if(isIOS&&isSafari&&!isStandalone){
+    setTimeout(()=>document.getElementById('install-banner').classList.add('show'),4000);
+  }
+}
+</script>
+</body>
+</html>
